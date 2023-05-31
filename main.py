@@ -4,15 +4,19 @@ from dotenv import load_dotenv
 import base64
 import json
 
+# load our env variables for access
 load_dotenv()
 
+# Assign our env variables so they can be used
 client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 redirect_uri = os.getenv('REDIRECT_URI')
 
+# Prints the json data received for easier viewing
 def dumpJson(jsonResponse):
     print(json.dumps(jsonResponse,indent=2))
 
+# Requests an access token so we can make API calls
 def requestAccessToken():
     url = "https://accounts.spotify.com/api/token"
     # concate our client id and secret to correct format
@@ -33,6 +37,7 @@ def requestAccessToken():
 def tokenHeader(token):
     return {"Authorization": "Bearer " + token}
 
+# Given an artist, returns the top tracks of an artist
 def getTopTracks(tokenHeader, artistID):
     url = f"https://api.spotify.com/v1/artists/{artistID}/top-tracks?country=US"
     json_response = requests.get(url, headers=tokenHeader)
@@ -41,15 +46,15 @@ def getTopTracks(tokenHeader, artistID):
     for track in tracks:
         print(track["name"])
 
-# returns meta data of artist
-def searchArtist(tokenHeader,artist):
+# searches artist and returns meta data of top result
+def retrieve_artist_metadata(tokenHeader,artist):
     url = f"https://api.spotify.com/v1/search?q={artist}&type=artist"
     json_response = requests.get(url,headers=tokenHeader)
     response_data = json_response.json()
     searchedArtist = response_data["artists"]["items"][0]
     return searchedArtist
-    #print(dumpJson(response_data))
-
+    
+# The following code past this comment is for API calls that accesses a Spotify user's informatin
 def get_users_playlists(user_id):
     url = f"https://api.spotify.com/v1/users/{user_id}/playlists"
     
@@ -72,11 +77,11 @@ def request_auth_code():
     response_data = json_response.json()
     #print(dumpJson(response_data))
 
-
-accessToken = requestAccessToken()
-tokenH = tokenHeader(accessToken)
-artist = searchArtist(tokenH, "Kanye West")
-artistID = artist["uri"].split(":")[2]
-print(artistID)
-getTopTracks(tokenH, artistID)
-request_auth_code()
+if __name__ == "__main__":
+    accessToken = requestAccessToken()
+    tokenH = tokenHeader(accessToken)
+    artist_metadata = retrieve_artist_metadata(tokenH, "Kanye West")
+    artistID = artist_metadata["uri"].split(":")[2]
+    print("ARTIST ID:",artistID)
+    #getTopTracks(tokenH, artistID)
+    #request_auth_code()
