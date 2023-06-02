@@ -1,11 +1,19 @@
 import requests
 import os
 from dotenv import load_dotenv
+from flask import Flask
 import base64
 import json
 
 # load our env variables for access
 load_dotenv()
+
+# Creating instance of Flask class
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return "Hello World!"
 
 # Assign our env variables so they can be used
 client_id = os.getenv('CLIENT_ID')
@@ -83,5 +91,6 @@ if __name__ == "__main__":
     artist_metadata = retrieve_artist_metadata(tokenH, "Kanye West")
     artistID = artist_metadata["uri"].split(":")[2]
     print("ARTIST ID:",artistID)
+    app.run(debug=True)
     #getTopTracks(tokenH, artistID)
     #request_auth_code()
